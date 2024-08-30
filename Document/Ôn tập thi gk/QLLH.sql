@@ -1,0 +1,79 @@
+CREATE DATABASE QLLH
+GO
+USE QLLH
+GO
+
+DROP DATABASE QLLH
+
+-- Câu 1:
+CREATE TABLE LOPHOC(
+    IDLopHoc CHAR(3) CONSTRAINT PK_LopHoc PRIMARY KEY,
+    NamBD INT,
+    ChuNhiem CHAR(4),
+    IDKhoa INT
+)
+
+CREATE TABLE LICHDAY(
+    IDLOP CHAR(3),
+    IDThuTiet VARCHAR(20),
+    IDPhongHoc INT,
+    GiaoVien CHAR(4),
+    IDKhoa INT, 
+    ThoiLuong INT
+
+    CONSTRAINT PK_LichDay PRIMARY KEY (IDLOP, IDThuTiet, IDPhongHoc)
+)
+
+CREATE TABLE GIAOVIEN(
+    IDKhoa INT,
+    IDMaGV CHAR(4),
+    HoTen NVARCHAR(20),
+    SoCMND VARCHAR(20),
+    NgaySinh DATE,
+    IDQuanLi CHAR(4)
+
+    CONSTRAINT PK_GiaoVien PRIMARY KEY (IDKhoa, IDMaGV)
+)
+
+-- Câu 2:
+ALTER TABLE LOPHOC ADD CONSTRAINT FK_LopHoc_GiaoVien
+FOREIGN KEY (IDKhoa, ChuNhiem) REFERENCES GIAOVIEN
+
+ALTER TABLE LICHDAY ADD CONSTRAINT FK_LichDay_LopHoc
+FOREIGN Key (IDLOP) REFERENCES LOPHOC
+
+ALTER TABLE LICHDAY ADD CONSTRAINT FK_LichDay_GiaoVien
+FOREIGN KEY (IDKhoa, GiaoVien) REFERENCES GIAOVIEN
+
+ALTER TABLE GIAOVIEN ADD CONSTRAINT FK_GiaoVien_GiaoVien
+FOREIGN KEY (IDKhoa, IDQuanLi) REFERENCES GIAOVIEN
+
+-- Câu 3:
+INSERT INTO GIAOVIEN VALUES (1, '1716', N'Nguyễn Quan Tùng', '240674018', '2/1/1998', '0753'),
+                            (2, '0357', N'Lưu Phi Nam', '240674027', '7/20/1980', '1716'),
+                            (2, '1716', N'Lê Quang Bảo', '240674063', NULL, NULL),
+                            (1, '0753', N'Hà Ngọc Thuý', '240674504', '5/2/1990', NULL),
+                            (1, '0357', N'Trương Thị Minh', '240674405', NULL, '0753'),
+                            (1, '1718', N'Ngô Thị Thuỷ', '240674306', NULL, '0357')
+
+INSERT INTO LOPHOC VALUES ('L01', 2015, '0357', 2),
+                          ('L02', 2013, '1716', 1)
+
+INSERT INTO LICHDAY VALUES ('L01', 'T2(1-6)', 2, '1718', 1, 10),
+                           ('L02', 'T2(7-12)', 1, '0753', 1, 30),
+                           ('L01', 'T4(4-6)', 5, '0357', 2, 25)
+
+-- Câu 4:
+SELECT GV.HoTen, (YEAR(GETDATE()) - YEAR(NgaySinh)) Tuoi
+FROM GIAOVIEN GV JOIN LOPHOC LH ON GV.IDMaGV = LH.ChuNhiem 
+JOIN LICHDAY LD ON (LH.ChuNhiem = LD.GiaoVien AND LD.IDKhoa = GV.IDKhoa)
+WHERE LD.IDThuTiet LIKE '%(%6%)%'
+
+-- Câu 5:
+SELECT GV.HoTen, GVQL.HoTen
+FROM GIAOVIEN GV JOIN GIAOVIEN GVQL ON (GVQL.IDMaGV = GV.IDQuanLi AND GV.IDKhoa = GVQL.IDKhoa)
+WHERE GVQL.NgaySinh IS NULL
+
+SELECT * FROM LOPHOC
+SELECT * FROM LICHDAY
+SELECT * FROM GIAOVIEN
